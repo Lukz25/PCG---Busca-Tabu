@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-// definições de parâmetros
+/// definições de parâmetros
 #define MAX_ITER 1000
 #define TABU_TAM 10
 
@@ -136,10 +136,10 @@ int main() {
         int num_vizinhos;
 
         gerar_vizinhanca(solucao_atual, vizinhanca, num_vizinhos);
-        solucao melhor_vizinho = selecionar_melhor(vizinhanca, num_vizinhos);
+        solucao melhor_vizinho = selecionar_melhor(vizinhanca, num_vizinhos, rotas);
 
         if (esta_na_lista_tabu(melhor_vizinho)) {
-            /// ignora solução tabu
+            continue;/// ignora solução tabu
         } else {
             solucao_atual = melhor_vizinho;
             if (solucao_atual.valor > melhor_global.valor) {

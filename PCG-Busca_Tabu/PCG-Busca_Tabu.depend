@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1756914070 source:c:\users\ceitelabinfo\desktop\pcg---busca-tabu\pcg-busca_tabu\main.c
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+
