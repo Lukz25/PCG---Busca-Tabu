@@ -8,30 +8,32 @@
 
 #define MAXIMO_CIDADES 20
 
-// tipo de solução
+/// tipo de solução
 typedef struct {
-    float fluxo_trafego; // entre 0 e 1, onde 1 = 100% congestionado
-    float tamanho_rota; //em km
+    float fluxo_trafego; /// entre 0 e 1, onde 1 = 100% congestionado
+    float tamanho_rota; ///em km
 } adjacencia;
 
 typedef struct {
-    // Qual é a melhor ordem das cidades que devme ser acessadas para a roda dos ciclistas
+    /// Qual é a melhor ordem das cidades que devme ser acessadas para a roda dos ciclistas
     int caminhos[MAXIMO_CIDADES];
+    float valor;
 } solucao;
 
-// lista tabu
+/// lista tabu
 solucao lista_tabu[TABU_TAM];
 int tabu_index = 0;
 
-// funções auxiliares
+/// funções auxiliares
 solucao gerar_solucao_aleatoria() {
     solucao s;
-    // Inicializa a solução
-    for (int i = 0; i < MAXIMO_CIDADES; i ++){
+    int i;
+    /// Inicializa a solução
+    for ( i = 0; i < MAXIMO_CIDADES; i ++){
         s.caminhos[i] = i;
     }
 
-    for (int i = 0; i < MAXIMO_CIDADES/2; i++){
+    for ( i = 0; i < MAXIMO_CIDADES/2; i++){
         s.caminhos[i] = s.caminhos[rand()%MAXIMO_CIDADES];
     }
 
@@ -43,9 +45,11 @@ bool criterio_parada(int iteracao) {
 }
 
 void gerar_vizinhanca(solucao atual, solucao vizinhos[], int num_vizinhos) {
-    for (int i = 0; i < num_vizinhos; i++) {
-        // Copia os valores do vetor atual
-        for(int j = 0; j < MAXIMO_CIDADES; j++){
+
+    int i,j;
+    for (i = 0; i < num_vizinhos; i++) {
+        /// Copia os valores do vetor atual
+        for(j = 0; j < MAXIMO_CIDADES; j++){
             vizinhos[i].caminhos[j] = atual.caminhos[j];
         }
         vizinhos[i].caminhos[i] = vizinhos[i].caminhos[rand()%MAXIMO_CIDADES];
@@ -54,15 +58,16 @@ void gerar_vizinhanca(solucao atual, solucao vizinhos[], int num_vizinhos) {
 
 float FUNCAO_DE_CUSTO(adjacencia m[][MAXIMO_CIDADES], solucao alvo){
     float valor = 0;
-    for(int j = 0; j < MAXIMO_CIDADES; j++){
+    int j;
+    for(j = 0; j < MAXIMO_CIDADES; j++){
         int origem = alvo.caminhos[j], destino = alvo.caminhos[(j+1)%MAXIMO_CIDADES];
             adjacencia valor_alvo = m[origem][destino];
-            // Da enfaze em soluçoes que priorizam o menor fluxo nas rotas, com pouca influencia no tamanho da rota
+            /// Da enfaze em soluçoes que priorizam o menor fluxo nas rotas, com pouca influencia no tamanho da rota
             valor += (0.8*valor_alvo.fluxo_trafego + 0.2*valor_alvo.tamanho_rota);
-            // Se quiser dar enfaze nos valores de distancia, eh soh fazer isso:
-            // (0.2*valor_alvo.fluxo_trafego + 0.8*valor_alvo.tamanho_rota)
-            // Nao precisa necessariamente somar 1 os valores de pesos, mas estamos fazendo assim
-            // para fazer media ponderada
+            /// Se quiser dar enfaze nos valores de distancia, eh soh fazer isso:
+            /// (0.2*valor_alvo.fluxo_trafego + 0.8*valor_alvo.tamanho_rota)
+            /// Nao precisa necessariamente somar 1 os valores de pesos, mas estamos fazendo assim
+            /// para fazer media ponderada
         }
 
     return valor;
@@ -70,8 +75,9 @@ float FUNCAO_DE_CUSTO(adjacencia m[][MAXIMO_CIDADES], solucao alvo){
 
 solucao selecionar_melhor(solucao vizinhos[], int num_vizinhos, adjacencia m[][MAXIMO_CIDADES]) {
     solucao melhor = vizinhos[0];
-    float melhor_valor = FUNCAO_DE_CUSTO(m, melhor)
-    for (int i = 1; i < num_vizinhos; i++) {
+    int i;
+    float melhor_valor = FUNCAO_DE_CUSTO(m, melhor);
+    for (i = 1; i < num_vizinhos; i++) {
         float valor = FUNCAO_DE_CUSTO(m, vizinhos[i]);
         if (valor <= melhor_valor) {
             melhor = vizinhos[i];
@@ -83,7 +89,8 @@ solucao selecionar_melhor(solucao vizinhos[], int num_vizinhos, adjacencia m[][M
 }
 
 bool esta_na_lista_tabu(solucao s) {
-    for (int i = 0; i < TABU_TAM; i++) {
+    int i;
+    for (i = 0; i < TABU_TAM; i++) {
         if (lista_tabu[i].valor == s.valor) {
             return true;
         }
@@ -96,17 +103,18 @@ void atualizar_lista_tabu(solucao s) {
     tabu_index = (tabu_index + 1) % TABU_TAM;
 }
 
-// função principal
+/// função principal
 int main() {
     int iteracao = 0;
 
-    // Inicializar a matriz de adjacencia das rotas da cidade
-    // Se isso for implementado em uma maior escala, os dados
-    // devem ser obtidos via API de GPS
+    /// Inicializar a matriz de adjacencia das rotas da cidade
+    /// Se isso for implementado em uma maior escala, os dados
+    /// devem ser obtidos via API de GPS
     adjacencia rotas[MAXIMO_CIDADES][MAXIMO_CIDADES];
+    int i, j;
 
-    for (int i = 0; i < MAXIMO_CIDADES; i ++){
-        for (int j = 0; j < MAXIMO_CIDADES; j ++){
+    for (i = 0; i < MAXIMO_CIDADES; i ++){
+        for (j = 0; j < MAXIMO_CIDADES; j ++){
             if(i == j){
                 rotas[i][j].fluxo_trafego = 0;
                 rotas[i][j].tamanho_rota = 0;
@@ -127,11 +135,11 @@ int main() {
         solucao vizinhanca[10];
         int num_vizinhos;
 
-        gerar_vizinhanca(solucao_atual, vizinhanca, &num_vizinhos);
+        gerar_vizinhanca(solucao_atual, vizinhanca, num_vizinhos);
         solucao melhor_vizinho = selecionar_melhor(vizinhanca, num_vizinhos);
 
         if (esta_na_lista_tabu(melhor_vizinho)) {
-            // ignora solução tabu
+            /// ignora solução tabu
         } else {
             solucao_atual = melhor_vizinho;
             if (solucao_atual.valor > melhor_global.valor) {
