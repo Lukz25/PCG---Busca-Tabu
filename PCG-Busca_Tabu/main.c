@@ -15,9 +15,8 @@ typedef struct {
 } adjacencia;
 
 typedef struct {
-    /// Qual é a melhor ordem das cidades que devme ser acessadas para a roda dos ciclistas
+    /// Qual é a melhor ordem das cidades que devem ser acessadas para a rota dos ciclistas
     int caminhos[MAXIMO_CIDADES];
-    float valor;
 } solucao;
 
 /// lista tabu
@@ -88,12 +87,19 @@ solucao selecionar_melhor(solucao vizinhos[], int num_vizinhos, adjacencia m[][M
     return melhor;
 }
 
-bool esta_na_lista_tabu(solucao s) {
+bool esta_na_lista_tabu(solucao s, adjacencia m [][MAXIMO_CIDADES]) {
     int i;
+    float valor_tabu, valor_solucao;
+    valor_solucao = FUNCAO_DE_CUSTO(m, s);
+
     for (i = 0; i < TABU_TAM; i++) {
-        if (lista_tabu[i].valor == s.valor) {
+
+        valor_tabu = FUNCAO_DE_CUSTO(m, lista_tabu[i]);
+
+        if (valor_tabu == valor_solucao) {
             return true;
         }
+
     }
     return false;
 }
@@ -106,7 +112,7 @@ void atualizar_lista_tabu(solucao s) {
 /// função principal
 int main() {
     int iteracao = 0;
-
+    float valor_atual, valor_global;
     /// Inicializar a matriz de adjacencia das rotas da cidade
     /// Se isso for implementado em uma maior escala, os dados
     /// devem ser obtidos via API de GPS
@@ -133,16 +139,20 @@ int main() {
 
     while (!criterio_parada(iteracao)) {
         solucao vizinhanca[10];
-        int num_vizinhos;
+        int num_vizinhos = 10;
 
         gerar_vizinhanca(solucao_atual, vizinhanca, num_vizinhos);
         solucao melhor_vizinho = selecionar_melhor(vizinhanca, num_vizinhos, rotas);
 
-        if (esta_na_lista_tabu(melhor_vizinho)) {
+        if (esta_na_lista_tabu(melhor_vizinho, rotas)) {
             continue;/// ignora solução tabu
         } else {
             solucao_atual = melhor_vizinho;
-            if (solucao_atual.valor > melhor_global.valor) {
+
+            valor_atual = FUNCAO_DE_CUSTO(rotas, solucao_atual);
+            valor_global = FUNCAO_DE_CUSTO(rotas, melhor_global);
+
+            if (valor_atual > valor_global) {
                 melhor_global = solucao_atual;
             }
         }
@@ -151,6 +161,6 @@ int main() {
         iteracao++;
     }
 
-    printf("melhor solução encontrada: %d\n", melhor_global.valor);
+    printf("melhor solucao encontrada: %.2lf\n", valor_global);
     return 0;
 }
