@@ -152,7 +152,7 @@ int main() {
             valor_atual = FUNCAO_DE_CUSTO(rotas, solucao_atual);
             valor_global = FUNCAO_DE_CUSTO(rotas, melhor_global);
 
-            if (valor_atual > valor_global) {
+            if (valor_atual < valor_global) {
                 melhor_global = solucao_atual;
             }
         }
