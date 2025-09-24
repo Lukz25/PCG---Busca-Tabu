@@ -31,9 +31,12 @@ solucao gerar_solucao_aleatoria() {
     for ( i = 0; i < MAXIMO_CIDADES; i ++){
         s.caminhos[i] = i;
     }
-
+    int aux, indice;
     for ( i = 0; i < MAXIMO_CIDADES/2; i++){
-        s.caminhos[i] = s.caminhos[rand()%MAXIMO_CIDADES];
+        indice = rand()%MAXIMO_CIDADES;
+        aux =  s.caminhos[indice];
+        s.caminhos[indice] = s.caminhos[i];
+        s.caminhos[i] = aux;
     }
 
     return s;
@@ -45,28 +48,35 @@ bool criterio_parada(int iteracao) {
 
 void gerar_vizinhanca(solucao atual, solucao vizinhos[], int num_vizinhos) {
 
-    int i,j;
+    int i,j, aux, indice;
     for (i = 0; i < num_vizinhos; i++) {
         /// Copia os valores do vetor atual
         for(j = 0; j < MAXIMO_CIDADES; j++){
             vizinhos[i].caminhos[j] = atual.caminhos[j];
         }
-        vizinhos[i].caminhos[i] = vizinhos[i].caminhos[rand()%MAXIMO_CIDADES];
+
+        indice = rand()%MAXIMO_CIDADES;
+        aux = vizinhos[i].caminhos[(i)%MAXIMO_CIDADES];
+        vizinhos[i].caminhos[(i)%MAXIMO_CIDADES] = vizinhos[i].caminhos[indice];
+        vizinhos[i].caminhos[indice] = aux;
+        // Imprime os vizinhos em formato de tabela
+
     }
+
 }
 
 float FUNCAO_DE_CUSTO(adjacencia m[][MAXIMO_CIDADES], solucao alvo){
     float valor = 0;
     int j;
-    for(j = 0; j < MAXIMO_CIDADES; j++){
+    for(j = 0; j < MAXIMO_CIDADES-1; j++){
         int origem = alvo.caminhos[j], destino = alvo.caminhos[(j+1)%MAXIMO_CIDADES];
-            adjacencia valor_alvo = m[origem][destino];
-            /// Da enfaze em soluçoes que priorizam o menor fluxo nas rotas, com pouca influencia no tamanho da rota
-            valor += (0.8*valor_alvo.fluxo_trafego + 0.2*valor_alvo.tamanho_rota);
-            /// Se quiser dar enfaze nos valores de distancia, eh soh fazer isso:
-            /// (0.2*valor_alvo.fluxo_trafego + 0.8*valor_alvo.tamanho_rota)
-            /// Nao precisa necessariamente somar 1 os valores de pesos, mas estamos fazendo assim
-            /// para fazer media ponderada
+        adjacencia valor_alvo = m[origem][destino];
+        /// Da enfaze em soluçoes que priorizam o menor fluxo nas rotas, com pouca influencia no tamanho da rota
+        valor += (0.8*valor_alvo.fluxo_trafego + 0.2*valor_alvo.tamanho_rota);
+        /// Se quiser dar enfaze nos valores de distancia, eh soh fazer isso:
+        /// (0.2*valor_alvo.fluxo_trafego + 0.8*valor_alvo.tamanho_rota)
+        /// Nao precisa necessariamente somar 1 os valores de pesos, mas estamos fazendo assim
+        /// para fazer media ponderada
         }
 
     return valor;
@@ -118,7 +128,7 @@ int main() {
     /// devem ser obtidos via API de GPS
     adjacencia rotas[MAXIMO_CIDADES][MAXIMO_CIDADES];
     int i, j;
-
+    srand(2);
     for (i = 0; i < MAXIMO_CIDADES; i ++){
         for (j = 0; j < MAXIMO_CIDADES; j ++){
             if(i == j){
@@ -165,10 +175,10 @@ int main() {
 
     for(i=0; i<MAXIMO_CIDADES; i++){
         if( i != MAXIMO_CIDADES-1)
-            printf("Cidade %d ->\n", melhor_global.caminhos[i]);
+            printf("Cidade %2d ->\n", melhor_global.caminhos[i]);
 
         else
-            printf("Cidade %d\n", melhor_global.caminhos[i]);
+            printf("Cidade %2d\n", melhor_global.caminhos[i]);
     }
     return 0;
 }
