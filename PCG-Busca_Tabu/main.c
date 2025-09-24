@@ -162,5 +162,13 @@ int main() {
     }
 
     printf("melhor solucao encontrada: %.2lf\n", valor_global);
+
+    for(i=0; i<MAXIMO_CIDADES; i++){
+        if( i != MAXIMO_CIDADES-1)
+            printf("Cidade %d ->\n", melhor_global.caminhos[i]);
+
+        else
+            printf("Cidade %d\n", melhor_global.caminhos[i]);
+    }
     return 0;
 }
